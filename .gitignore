@@ -1,1 +1,22 @@
-venv
+# Ignorar pastas de dados
+dataset/
+
+# Ignorar ambientes virtuais
+venv/
+.env/
+__pycache__/
+
+# Ignorar arquivos temporários
+*.pyc
+*.pyo
+*.log
+*.tmp
+*.swp
+*.bak
+
+# Ignorar arquivos do VSCode
+.vscode/
+
+# Ignorar arquivos do sistema
+.DS_Store
+Thumbs.db
