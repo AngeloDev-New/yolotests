@@ -1,4 +1,10 @@
-path: dataset  # caminho para as imagens/labels
+# path: dataset  # caminho para as imagens/labels
+# train: images/train
+# val: images/val
+
+# nc: 2
+# names: ['milho', 'daninha']
+path: /content/drive/MyDrive/dataset
 train: images/train
 val: images/val
 
