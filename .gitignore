@@ -1,10 +1,11 @@
 # Ignorar pastas de dados
 dataset/
-
+runs/
 # Ignorar ambientes virtuais
 venv/
 .env/
 __pycache__/
+
 
 # Ignorar arquivos temporários
 *.pyc
