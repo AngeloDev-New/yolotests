@@ -11,16 +11,17 @@ for box in results.boxes:
     if int(box.cls[0]) == 0:  # 0 é a classe "person" no COCO
         print("Pessoa detectada:", box.xyxy[0])
 
-coco_classes = {
-    0: "person", 1: "bicycle", 2: "car", 3: "motorcycle", 4: "airplane", 5: "bus", 6: "train", 7: "truck", 8: "boat",
-    9: "traffic light", 10: "fire hydrant", 11: "stop sign", 12: "parking meter", 13: "bench",
-    14: "bird", 15: "cat", 16: "dog", 17: "horse", 18: "sheep", 19: "cow",
-    20: "elephant", 21: "bear", 22: "zebra", 23: "giraffe", 24: "backpack", 25: "umbrella", 26: "handbag", 27: "tie", 28: "suitcase",
-    29: "frisbee", 30: "skis", 31: "snowboard", 32: "sports ball", 33: "kite", 34: "baseball bat", 35: "baseball glove",
-    36: "skateboard", 37: "surfboard", 38: "tennis racket", 39: "bottle", 40: "wine glass", 41: "cup", 42: "fork", 43: "knife",
-    44: "spoon", 45: "bowl", 46: "banana", 47: "apple", 48: "sandwich", 49: "orange", 50: "broccoli", 51: "carrot", 52: "hot dog",
-    53: "pizza", 54: "donut", 55: "cake", 56: "chair", 57: "couch", 58: "potted plant", 59: "bed", 60: "dining table", 61: "toilet",
-    62: "tv", 63: "laptop", 64: "mouse", 65: "remote", 66: "keyboard", 67: "cell phone", 68: "microwave", 69: "oven", 70: "toaster",
-    71: "sink", 72: "refrigerator", 73: "book", 74: "clock", 75: "vase", 76: "scissors", 77: "teddy bear", 78: "hair drier",
-    79: "toothbrush"
+coco_dict_pt = {
+    "pessoa": 0, "bicicleta": 1, "carro": 2, "moto": 3, "avião": 4, "ônibus": 5, "trem": 6, "caminhão": 7, "barco": 8,
+    "semáforo": 9, "hidrante": 10, "placa de pare": 11, "parquímetro": 12, "banco": 13, "pássaro": 14, "gato": 15,
+    "cachorro": 16, "cavalo": 17, "ovelha": 18, "vaca": 19, "elefante": 20, "urso": 21, "zebra": 22, "girafa": 23,
+    "mochila": 24, "guarda-chuva": 25, "bolsa": 26, "gravata": 27, "mala": 28, "frisbee": 29, "esquis": 30,
+    "snowboard": 31, "bola esportiva": 32, "pipa": 33, "taco de beisebol": 34, "luva de beisebol": 35, "skate": 36,
+    "prancha de surf": 37, "raquete de tênis": 38, "garrafa": 39, "taça de vinho": 40, "copo": 41, "garfo": 42,
+    "faca": 43, "colher": 44, "tigela": 45, "banana": 46, "maçã": 47, "sanduíche": 48, "laranja": 49, "brócolis": 50,
+    "cenoura": 51, "cachorro-quente": 52, "pizza": 53, "rosquinha": 54, "bolo": 55, "cadeira": 56, "sofá": 57,
+    "vaso de planta": 58, "cama": 59, "mesa de jantar": 60, "vaso sanitário": 61, "televisão": 62, "laptop": 63,
+    "mouse": 64, "controle remoto": 65, "teclado": 66, "celular": 67, "micro-ondas": 68, "forno": 69, "torradeira": 70,
+    "pia": 71, "geladeira": 72, "livro": 73, "relógio": 74, "vaso decorativo": 75, "tesoura": 76, "ursinho de pelúcia": 77,
+    "secador de cabelo": 78, "escova de dentes": 79
 }
