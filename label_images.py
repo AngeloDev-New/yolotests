@@ -1,6 +1,321 @@
 import pygame
 import os
 import yaml
+import random
+import shutil
+import subprocess
+
+
+if not os.path.isdir('dataset'):
+    os.makedirs('dataset/images/test', exist_ok=True)
+    os.makedirs('dataset/images/val', exist_ok=True)
+    os.makedirs('dataset/images/train', exist_ok=True)
+    os.makedirs('dataset/labels/test', exist_ok=True)
+    os.makedirs('dataset/labels/val', exist_ok=True)
+    os.makedirs('dataset/labels/train', exist_ok=True)
+    # Seleciona a pasta com Zenity
+    result = subprocess.run(
+        ["zenity", "--file-selection", "--directory", "--title=Selecione uma pasta"],
+        capture_output=True, text=True
+    )
+
+    if result.returncode == 0:
+        origem = result.stdout.strip()  # remove \n
+        destino = "dataset/images/test"
+
+        # Garante que a pasta de destino existe
+        os.makedirs(destino, exist_ok=True)
+
+        # Copia todos os arquivos da pasta selecionada para o destino
+        for arquivo in os.listdir(origem):
+            caminho_origem = os.path.join(origem, arquivo)
+            caminho_destino = os.path.join(destino, arquivo)
+            if os.path.isfile(caminho_origem):
+                shutil.copy(caminho_origem, caminho_destino)
+
+        # Cria os arquivos de label com o mesmo nome base
+        label_dir = "dataset/labels/test"
+        os.makedirs(label_dir, exist_ok=True)
+
+        labels = [os.path.splitext(image)[0] + '.txt' for image in os.listdir(destino)]
+
+        for label in labels:
+            caminho_label = os.path.join(label_dir, label)
+            open(caminho_label, 'a').close()  # Cria o arquivo vazio se não existir
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+division = {}
+
+def att_data():
+    global division
+    division = {
+        'test': len(os.listdir('dataset/images/test')),
+        'val': len(os.listdir('dataset/images/val')),
+        'train': len(os.listdir('dataset/images/train'))
+    }
+    division['total'] = division['test'] + division['val'] + division['train']
+    
+    if division['total'] > 0:
+        division['percents'] = {
+            'test_p': (division["test"] / division['total']) * 100,
+            'val_p': (division["val"] / division['total']) * 100,
+            'train_p': (division['train'] / division['total']) * 100
+        }
+    else:
+        division['percents'] = {'test_p': 0, 'val_p': 0, 'train_p': 0}
+
+def get_all_images():
+    """Coleta todas as imagens de todas as pastas"""
+    all_images = []
+    image_path = 'dataset/images'
+    
+    for folder in ['train', 'val', 'test']:
+        folder_path = os.path.join(image_path, folder)
+        if os.path.exists(folder_path):
+            for img in os.listdir(folder_path):
+                all_images.append((img, folder))
+    
+    return all_images
+
+def move_file_safe(img_name, origem, destino):
+    """Move imagem e label de forma segura"""
+    image_path = 'dataset/images'
+    label_path = 'dataset/labels'
+    
+    # Move imagem
+    img_origem = os.path.join(image_path, origem, img_name)
+    img_destino = os.path.join(image_path, destino, img_name)
+    
+    if os.path.exists(img_origem):
+        shutil.move(img_origem, img_destino)
+    
+    # Move label
+    base, _ = os.path.splitext(img_name)
+    lbl_origem = os.path.join(label_path, origem, base + '.txt')
+    lbl_destino = os.path.join(label_path, destino, base + '.txt')
+    
+    if os.path.exists(lbl_origem):
+        shutil.move(lbl_origem, lbl_destino)
+
+def redistribute_dataset(train_ratio, val_ratio, test_ratio):
+    """Redistribui todo o dataset baseado nas proporções desejadas"""
+    
+    # Normaliza as proporções
+    total_ratio = train_ratio + val_ratio + test_ratio
+    train_ratio = train_ratio / total_ratio
+    val_ratio = val_ratio / total_ratio  
+    test_ratio = test_ratio / total_ratio
+    
+    # Coleta todas as imagens
+    all_images = get_all_images()
+    total_images = len(all_images)
+    
+    if total_images == 0:
+        print("Nenhuma imagem encontrada!")
+        return
+    
+    # Calcula quantidades desejadas
+    n_train = int(total_images * train_ratio)
+    n_val = int(total_images * val_ratio)
+    n_test = total_images - n_train - n_val  # Garante que soma 100%
+    
+    print(f"Redistribuindo {total_images} imagens:")
+    print(f"Train: {n_train} ({train_ratio*100:.1f}%)")
+    print(f"Val: {n_val} ({val_ratio*100:.1f}%)")
+    print(f"Test: {n_test} ({test_ratio*100:.1f}%)")
+    
+    # Embaralha as imagens
+    random.shuffle(all_images)
+    
+    # Primeiro, move tudo pra uma pasta temporária se necessário
+    # ou trabalha diretamente com a lista embaralhada
+    
+    # Distribui as imagens
+    for i, (img_name, current_folder) in enumerate(all_images):
+        if i < n_train:
+            target_folder = 'train'
+        elif i < n_train + n_val:
+            target_folder = 'val'
+        else:
+            target_folder = 'test'
+        
+        # Só move se não estiver na pasta certa
+        if current_folder != target_folder:
+            move_file_safe(img_name, current_folder, target_folder)
+    
+    print("Redistribuição concluída!")
+
+def show_distribution():
+    """Mostra a distribuição atual"""
+    att_data()
+    print("\nDistribuição atual:")
+    for k in ['train', 'val', 'test']:
+        print(f"{k}: {division[k]} imagens ({division['percents'][k+'_p']:.1f}%)")
+    print(f"Total: {division['total']} imagens\n")
+
+# ========== Execução ==========
+print("=== Dataset Redistributor ===")
+show_distribution()
+
+while True:
+    try:
+        user_input = input('Distribuir de forma personalizada? (y/n): ').strip().lower()
+        if user_input == 'y':
+            ratios_input = input('Nova divisão (train,val,test) ex: 70,20,10 -> ')
+        else:
+            ratios_input = '7,2,1'
+        train_ratio, val_ratio, test_ratio = [float(i.strip()) for i in ratios_input.split(',')]
+        
+        if train_ratio < 0 or val_ratio < 0 or test_ratio < 0:
+            print("Valores não podem ser negativos!")
+            continue
+            
+        if train_ratio + val_ratio + test_ratio == 0:
+            print("Pelo menos um valor deve ser maior que zero!")
+            continue
+        
+        redistribute_dataset(train_ratio, val_ratio, test_ratio)
+        show_distribution()
+        break
+        
+    except ValueError:
+        print("Erro! Digite 3 números separados por vírgula (ex: 70,20,10)")
+        continue
+    except KeyboardInterrupt:
+        print("\nSaindo...")
+        break
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
+        continue
+
+def salvar_yaml(classes):
+    with open('dados.yaml', 'w') as f:
+        f.write(f"""path: dataset
+train: images/train
+val: images/val
+nc: {len(classes)}
+names: {classes}
+""")
+
+if not os.path.isfile('dados.yaml'):
+    print('dados.yaml criado')
+    if True:
+        classes = []
+
+        print("Digite o nome de cada classe. Digite 'exit' para finalizar.")
+        while True:
+            classe = input(f'Classe {len(classes)}: ')
+            if classe.lower() == 'exit':
+                break
+            if classe.strip():
+                classes.append(classe.strip())
+
+        if classes:
+            salvar_yaml(classes)
+            print("Arquivo dados.yaml criado com sucesso.")
+        else:
+            print("Nenhuma classe inserida. YAML não criado.")
+else:
+    # Carrega as classes existentes
+    with open('dados.yaml', 'r') as f:
+        dados = yaml.safe_load(f)
+
+    classes = dados.get("names", [])
+    print(f"Classes atuais: {classes}")
+
+    print("\nO que deseja fazer?")
+    print("1 - Adicionar nova classe")
+    print("2 - Remover uma classe")
+    print("3 - Reescrever todas as classes")
+    print("4 - Manter como está")
+    opcao = input("Escolha (1/2/3/4): ")
+
+    if opcao == '1':
+        nova = input("Digite o nome da nova classe: ").strip()
+        if nova and nova not in classes:
+            classes.append(nova)
+            salvar_yaml(classes)
+            print("Classe adicionada com sucesso.")
+        else:
+            print("Classe vazia ou já existe.")
+    elif opcao == '2':
+        print("Classes:")
+        for i, c in enumerate(classes):
+            print(f"{i}: {c}")
+        idx = input("Digite o número da classe a remover: ")
+        if idx.isdigit() and 0 <= int(idx) < len(classes):
+            removida = classes.pop(int(idx))
+            salvar_yaml(classes)
+            print(f"Classe '{removida}' removida com sucesso.")
+        else:
+            print("Índice inválido.")
+    elif opcao == '3':
+        novas = []
+        print("Digite o nome de cada classe nova. Digite 'exit' para finalizar.")
+        while True:
+            classe = input(f'Classe {len(novas)}: ')
+            if classe.lower() == 'exit':
+                break
+            if classe.strip():
+                novas.append(classe.strip())
+
+        if novas:
+            classes = novas
+            salvar_yaml(classes)
+            print("Classes reescritas com sucesso.")
+        else:
+            print("Nenhuma classe inserida. Nada foi alterado.")
+    elif opcao == '4':
+        print("Mantendo as classes existentes.")
+    else:
+        print("Opção inválida.")
+
+
+
+
 
 # Configurações iniciais
 pygame.init()
